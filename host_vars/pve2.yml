@@ -1,0 +1,14 @@
+---
+
+# I encrypt the whole file in production.
+
+root_password: "{{ 'super secret password for this host' | password_hash }}"
+
+keepalived_host_vrrps_values:
+  main:
+    priority: 220
+    interface: vmbr0
+
+zfs_auto_snapshot_config:
+  - name: rpool
+    disabled: yes

@@ -1,0 +1,5 @@
+Match Address {{ proxmox_cluster_peers | join(',') }}
+	PermitRootLogin yes
+	AcceptEnv LANG LC_PVE_TICKET LC_*
+	SetEnv _CLUSTER_INTERNAL={{ ansible_machine_id }}
+

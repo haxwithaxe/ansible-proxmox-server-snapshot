@@ -1,0 +1,7 @@
+---
+
+- name: Set ZED verbosity
+  ansible.builtin.lineinfile:
+    path: /etc/zfs/zed.d/zed.rc
+    regex: '^[# ]*ZED_NOTIFY_VERBOSE=.*'
+    line: 'ZED_NOTIFY_VERBOSE=1'

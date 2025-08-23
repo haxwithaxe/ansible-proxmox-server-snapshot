@@ -1,0 +1,49 @@
+---
+
+# I encrypt the whole file in production.
+
+root_password: "{{ 'super secret password for this host' | password_hash }}"
+
+keepalived_host_vrrps_values:
+  main:
+    state: MASTER
+    priority: 230
+    interface: vmbr0
+
+zfs_scrub_configs:
+  - day_of_week: Monday
+    pool: storage
+  - day_of_week: Sunday
+    pool: backup0
+  - day_of_week: Sunday
+    pool: rpool
+  - day_of_week: Monday
+    pool: downloads
+    biweekly_start_week: 2
+  - day_of_week: Sunday
+    pool: fast-vms
+    biweekly_start_week: 2
+
+zfs_auto_snapshot_config:
+  - name: backup0
+    disabled: yes
+  - name: rpool
+    disabled: yes
+  - name: downloads
+    disabled: yes
+  - name: fast-vms
+    disabled: yes
+  - name: storage
+    disabled: yes
+  - name: storage/backups
+    frequent: no
+    hourly: no
+    daily: no
+    weekly: yes
+    monthly: no
+  - name: storage/library
+    frequent: no
+    hourly: no
+    daily: yes
+    weekly: yes
+    monthly: no

@@ -1,0 +1,51 @@
+---
+
+- name: Prep system
+  hosts: all
+  connection: local
+  become: yes
+  become_user: root
+  tasks:
+    - name: Apt update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install prereqs
+      apt:
+        name:
+          - zfs-zed
+          - zfs-auto-snapshot
+
+- name: Base role
+  hosts: all
+  connection: local
+  become: yes
+  collections:
+    - devsec.hardening
+  roles:
+    - role: base
+      tags: [ base ]
+    - role: ssh_hardening
+      tags: [ ssh_hardening ]
+    - role: ssh_softening
+      tags: [ ssh_hardening, ssh_softening ]
+    - role: haxwithaxe.keepalived
+      tags: [ keepalived ]
+      vars:
+        keepalived_from_address: "keepalived@{{ ansible_hostname }}"
+        keepalived_vrrps:
+          - name: main
+            instance_number: 10
+            virtual_router_id: 10
+            auth_pass: "{{ keepalived_auth_pass }}"
+            virtual_ipaddress:
+              - ip: "192.168.x.x/24"
+    - role: zfs_scrub
+      tags: zfs_scrub
+      vars:
+        zfs_scrub_notify_command: 'ntfyr -t alerts --timestamp -m '
+        zfs_scrub_time_of_day: 05:00:00
+        zfs_scrub_biweekly: yes
+    - role: zfs_zed
+      tags: zfs_zed

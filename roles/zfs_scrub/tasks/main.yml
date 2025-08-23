@@ -1,0 +1,15 @@
+---
+
+- name: 
+  block:
+    - name: Disable default scheduled zfs scrub
+      ansible.builtin.lineinfile: 
+        path: /etc/cron.d/zfsutils-linux
+        regex: '^[# ]*(.* \[ -x /usr/lib/zfs-linux/scrub \]; then /usr/lib/zfs-linux/scrub; fi)'
+        line: '#\1'
+        backrefs: yes
+      when: zfs_scrub_configs is defined and zfs_scrub_configs | length > 0
+
+    - name: Setup scheduled zfs scrubs
+      ansible.builtin.include_role:
+        name: haxwithaxe.zfs_scrub

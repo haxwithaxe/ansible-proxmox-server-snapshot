@@ -1,0 +1,66 @@
+---
+
+- name: Setup prerequisits
+  tags: alert,bash,bash_completion,install,prepare,python
+  include_tasks:
+    file: "tasks/pre.yml"
+    apply:
+      tags: [ install, prepare ]
+
+# Sudoers
+- name: Create sudoers files
+  copy:
+    content: "{{ item.name }} ALL=(ALL) NOPASSWD: ALL"
+    dest: "/etc/sudoers.d/{{ item.name }}"
+  when: item.sudo_no_password | default('no') | bool
+  loop: "{{ users }}"
+
+- name: Install additional sudoers files
+  copy:
+    src: "files/sudoers.d/{{ item }}"
+    dest: "/etc/sudoers.d/{{ item }}"
+  loop: "{{ sudoers_files | default([]) }}"
+
+- name: Ensure sudoers.d is included
+  lineinfile:
+    dest: /etc/sudoers
+    line: "@includedir /etc/sudoers.d"
+    state: present
+
+- name: Validate sudoers config
+  shell: "visudo -cf /etc/sudoers"
+  changed_when: no
+
+# Users and Groups
+- name: Add groups
+  include_tasks: group.yml
+  loop: "{{ required_groups | default([]) }}"
+
+- name: Ensure SSH users group exists
+  group:
+    name: "{{ sshd_allowed_ssh_users_group }}"
+    state: present
+
+- name: Add users
+  include_tasks: user.yml
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+- name: Configure root user
+  user:
+    name: "root"
+    password: "{{ root_password | default(item.password | default('*')) }}"
+    groups: "{{ (user.groups
+      | default([])) + [sshd_allowed_ssh_users_group]
+      | unique }}"  # root is always in the ssh users group
+    append: "{{ user.append_groups | default(false) }}"
+    state: present
+  when: item.name == 'root'
+  loop: "{{ users }}"
+
+- name: Add hostname to samba panic
+  lineinfile:
+    path: /usr/share/samba/panic-action
+    regex: '\) \| mail -s "Panic or segfault in Samba" root'
+    line: ') | mail -s "Panic or segfault in Samba on $(hostname)" root'

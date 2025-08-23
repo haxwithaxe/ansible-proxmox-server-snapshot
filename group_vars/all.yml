@@ -1,0 +1,63 @@
+---
+
+proxmox_server_group: all
+deployment_domain: example.com
+
+users:
+  - name: username
+    home_dir: /home/username
+    append_groups: yes
+    groups:
+      - ntfyr
+    pubkeys_from_github_user: github-username
+    ssh_user: yes
+  - name: root
+    home_dir: /root
+
+required_groups:
+  - name: ssh-users
+  - name: ntfyr
+    gid: 1200
+
+no_passwords: no
+sshd_allowed_ssh_users_group: ssh-users
+sshd_moduli_size: 2048
+sshd_rsa_host_key_size: 8192
+ssh_host_key_files:
+  - /etc/ssh/ssh_host_rsa_key
+  - /etc/ssh/ssh_host_ed25519_key
+ssh_host_key_algorithms:
+  - ssh-rsa  # RSA first because proxmox only syncs the RSA keys
+  - ssh-ed25519
+ssh_client_host_key_algorithms:
+  - ssh-rsa  # RSA first because proxmox only syncs the RSA keys
+  - ssh-ed25519
+ssh_allow_groups: "{{ sshd_allowed_ssh_users_group }}"
+ssh_print_motd: yes
+ssh_print_pam_motd: yes
+sshd_moduli_minimum: 2048
+ssh_ciphers:
+  - chacha20-poly1305@openssh.com
+  - aes256-gcm@openssh.com
+  - aes128-gcm@openssh.com
+  - aes256-ctr
+  - aes192-ctr
+  - aes128-ctr
+ssh_kex:
+  - curve25519-sha256@libssh.org
+  - diffie-hellman-group-exchange-sha256
+ssh_macs:
+  - hmac-sha2-512-etm@openssh.com
+  - hmac-sha2-256-etm@openssh.com
+  - umac-128-etm@openssh.com
+  - hmac-sha2-512
+  - hmac-sha2-256
+  - umac-128@openssh.com 
+sshd_custom_options:
+  - "Include /etc/ssh/sshd_config.d/*"
+
+keepalived_auth_pass: !vault |
+          <vault encrypted keepalived password>
+ntfyr_server: "ntfy.{{ deployment_domain }}"
+ntfyr_token: !vault |
+          <vault encrypted ntfy auth token>

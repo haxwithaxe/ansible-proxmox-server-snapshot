@@ -1,0 +1,3 @@
+host_vars/test*
+*.secret
+hosts.*
