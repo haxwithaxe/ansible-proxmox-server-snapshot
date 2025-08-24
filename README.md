@@ -1,4 +1,4 @@
-ansible-proxmox-server
+proxmox-server
 ===================
 
 This is snapshot of my personal playbook for prepping proxmox servers. Names have been changed so it won't work as is.

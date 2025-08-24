@@ -4,7 +4,7 @@ roles:
   - name: haxwithaxe.keepalived
     src: https://github.com/haxwithaxe/ansible-keepalived
   - name: haxwithaxe.zfs_auto_snapshot
-    src: https://github.com/haxwithaxe/ansible-zfs_auto_snapshot
+    src: https://github.com/haxwithaxe/ansible-zfs-auto-snapshot
 
 collections:
   - name: community.general
