@@ -26,7 +26,7 @@
   roles:
     - role: base
       tags: [ base ]
-    - role: ssh_hardening
+    - role: devsec.hardening.ssh_hardening
       tags: [ ssh_hardening ]
     - role: ssh_softening
       tags: [ ssh_hardening, ssh_softening ]
@@ -49,3 +49,6 @@
         zfs_scrub_biweekly: yes
     - role: zfs_zed
       tags: zfs_zed
+    - role: haxwithaxe.zfs_auto_snapshot
+      tags: zfs_auto_snapshot
+
